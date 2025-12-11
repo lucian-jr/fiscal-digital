@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>War Room - IPM</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background: #222; color: #fff; padding: 20px; }
+        h1 { border-bottom: 2px solid #444; padding-bottom: 10px; }
+        #mensagens { margin-top: 20px; }
+        
+        .alerta { 
+            background: #d00; color: white; padding: 15px; margin: 10px 0; 
+            border-radius: 5px; animation: piscar 1s infinite; font-weight: bold;
+            box-shadow: 0 0 10px rgba(255,0,0,0.5);
+        }
+        
+        @keyframes piscar { 0% {opacity: 1;} 50% {opacity: 0.8;} 100% {opacity: 1;} }
+    </style>
+</head>
+<body>
+    <h1>🏙️ Monitoramento da Cidade (Tempo Real)</h1>
+    <p>Status da Conexão: <span id="status" style="color:orange">Conectando...</span></p>
+    
+    <div id="mensagens"></div>
+
+    <script>
+        var ws = new WebSocket("ws://localhost:8000/ws/monitoramento");
+
+        ws.onopen = function() {
+            document.getElementById("status").innerText = "ONLINE 🟢";
+            document.getElementById("status").style.color = "#0f0";
+        };
+
+        ws.onmessage = function(event) {
+            // Quando chega uma mensagem do Python, cria uma caixa vermelha
+            var msgs = document.getElementById("mensagens");
+            var div = document.createElement("div");
+            div.className = "alerta";
+            div.innerText = event.data; 
+            msgs.prepend(div);
+        };
+
+        ws.onclose = function() {
+            document.getElementById("status").innerText = "DESCONECTADO 🔴";
+            document.getElementById("status").style.color = "red";
+        };
+    </script>
+</body>
+</html>
